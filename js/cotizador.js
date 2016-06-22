@@ -250,7 +250,7 @@ $(document).ready(function() {
             }
             $("#tableDetalle").append(tr);
         }
-        $("#aportacionAcomulada").val(Math.round(aportacionAcomulada));
+        $("#aportacionAcomulada").html(Math.round(aportacionAcomulada));
         $("#edadProyectada").html(edadFinal);
 
     }

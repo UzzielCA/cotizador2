@@ -150,22 +150,27 @@
 						</fieldset>
 
 						<fieldset id="resumen">
-							<div class="input-field col s6">
-								<input id="aportacionAcomulada" type="number" readonly="true">
-								<label for="aportacionAcomulada">Aportaciones acomuladas</label>
-							</div>
-							<div class="input-field col s6">
-								<input type="number" id="saldoProyectado" readonly="true">
-								<label for="saldoProyectado">Saldo proyectado a edad <b id="edadProyectada"></b></label>
-							</div>
-							<div class="input-field col s6">
-								<input type="number" id="porcentajeBonoAcreditado">
-								<label for="porcentajeBonoAcreditado">% de Bono Acreditado</label>
-							</div>
-							<div class="input-field col s6">
-								<input type="number" id="bonoAcreditado">
-								<label for="bonoAcreditado">Bono Acreditado</label>
-							</div>
+							<table class="bordered">
+								<tr>
+									<th>Aportaciones Acomuladas</th>
+									<th>Saldo proyectado a edad <b id="edadProyectada"></b></th>
+								</tr>
+								<tr>
+									<td id="aportacionAcomulada"></td>
+									<td id="saldoProyectado"></td>
+								</tr>
+							</table>
+							<br>
+							<table class="bordered">
+								<tr>
+									<th>% de Bono Acreditado</th>
+									<th>Bono Acreditado</th>
+								</tr>
+								<tr>
+									<td id="porcentajeBonoAcreditado"></td>
+									<td id="bonoAcreditado"></td>
+								</tr>
+							</table>
 						</fieldset>
 						<fieldset id="detalle">
 							<table class="responsive-table bordered highlight" id="tableDetalle">
