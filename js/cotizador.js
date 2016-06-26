@@ -242,7 +242,7 @@ $(document).ready(function() {
                         td.textContent = Math.round(aportacionAcomulada);
                         break;
                     case 4:
-                        getSaldoFondo();
+                        getSaldoInicialDeducible();
 
                         td.textContent = "SALDO DEL FONDO";
                         break;
@@ -320,7 +320,7 @@ function Deducible(edad, aportacion, periodicidad, plazo){
   this.plazo = plazo;
 }
 
-function getSaldoFondo() {
+function getSaldoInicialDeducible() {
 
   var tasaPortafolio = [];
 
@@ -334,11 +334,11 @@ function getSaldoFondo() {
     var multDinamico = tasaPortafolio["pesosDinamico"] * $("#pesosDinamico").val();
     var interesAnual = (multBalanceado + multDinamico + multConservador)/100;
 
-    setInteresAnual(interesAnual);
+    calculaSaldoFinal(interesAnual);
   });
 };
 
-function setInteresAnual(interesAnual) {
+function calculaSaldoFinal(interesAnual) {
 
   interesMensual = Math.pow(1+interesAnual,1/12) - 1;
   deducible.interesAnual = interesAnual;
@@ -365,17 +365,7 @@ function setInteresAnual(interesAnual) {
         cargoAdministrativo = Math.round(((saldoAnterior + aportacion + interes) * .015 * 1.16) * -1);
       }
       var cargoGestionInvercion = Math.round(((saldoAnterior + aportacion + interes + cargoFijo + cargoAdministrativo) * .001 * 1.16) * -1);
-      var saldoFinal = saldoAnterior + aportacion + interes + cargoFijo + cargoAdministrativo +cargoGestionInvercion;
-
-      console.log("i", i);
-      console.log("j", j);
-      console.log("saldoAnterior", saldoAnterior);
-      console.log("aportacion", aportacion);
-      console.log("interes", interes);
-      console.log("cargoFijo", cargoFijo);
-      console.log("cargoAdministrativo", cargoAdministrativo);
-      console.log("cargoGestionInvercion", cargoGestionInvercion);
-      console.log("saldoFinal", saldoFinal);
+      var saldoFinal = saldoAnterior + aportacion + interes + cargoFijo + cargoAdministrativo +cargoGestionInvercion
 
       saldoAnterior = saldoFinal;
       saldoFinalArr[j] = saldoFinal;
