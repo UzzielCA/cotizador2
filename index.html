@@ -8,7 +8,7 @@
 	<script type="text/javascript" src="js/jquery.js?12-0-7-26"></script>
 
 	<script type="text/javascript" src="js/snap_svg.js"></script>
-	<script type="text/javascript" src="js/velocity.js"></script>
+	<!--<script type="text/javascript" src="js/velocity.js"></script>-->
 	<script type="text/javascript" src="js/materialize.min.js"></script>
 </head>
 <body>
@@ -104,45 +104,9 @@
 									<tbody>
 										<tr>
 											<th>Pesos</th>
-											<td><input value="0" type="number" min="0" max="100" name="" value=""></td>
-											<td><input value="0" type="number" min="0" max="100" name="" value=""></td>
-											<td><input value="0" type="number" min="0" max="100" name="" value=""></td>
-										</tr>
-										<tr>
-											<th>Dólares</th>
-											<td><input value="0" type="number" min="0" max="100" name="" value=""></td>
-											<td><input value="0" type="number" min="0" max="100" name="" value=""></td>
-											<td><input value="0" type="number" min="0" max="100" name="" value=""></td>
-										</tr>
-										<tr>
-											<th>Euros</th>
-											<td><input value="0" type="number" min="0" max="100" name="" value=""></td>
-											<td><input value="0" type="number" min="0" max="100" name="" value=""></td>
-											<td><input value="0" type="number" min="0" max="100" name="" value=""></td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
-							<div class="input-field col s12">
-								<table>
-									<tbody>
-										<tr>
-											<th>Revaluables</th>
-											<td><input value="0" type="number" min="0" max="100" name="" value=""></td>
-											<th>China</th>
-											<td><input value="0" type="number" min="0" max="100" name="" value=""></td>
-										</tr>
-										<tr>
-											<th>Brasil</th>
-											<td><input value="0" type="number" min="0" max="100" name="" value=""></td>
-											<th>Mercados Emergentes</th>
-											<td><input value="0" type="number" min="0" max="100" name="" value=""></td>
-										</tr>
-										<tr>
-											<th>BRIC</th>
-											<td><input value="0" type="number" min="0" max="100" name="" value=""></td>
-											<th>Oro</th>
-											<td><input value="0" type="number" min="0" max="100" name="" value=""></td>
+											<td><input placeholder="0" id="pesosConservador" type="number" min="0" max="100" name="" value=""></td>
+											<td><input placeholder="0" id="pesosBalanceado" type="number" min="0" max="100" name="" value=""></td>
+											<td><input placeholder="0" id="pesosDinamico" type="number" min="0" max="100" name="" value=""></td>
 										</tr>
 									</tbody>
 								</table>
@@ -208,6 +172,11 @@
 			</div>
 		</div>
 	</div>
+
+
+	<script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
+
 	<script type="text/javascript" src="js/cotizador.js"></script>
+
 </body>
 </html>

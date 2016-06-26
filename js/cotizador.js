@@ -1,3 +1,6 @@
+var firebase;
+var db;
+var deducible;
 $(document).ready(function() {
 
   //Ckech mark SVG icon point
@@ -15,8 +18,9 @@ $(document).ready(function() {
   //Enable/Disable consecutive click/keypress event
   var clickable_btn = true;
 
-  init();
 
+  init();
+  initFirebase();
   function init() {
     add_navigation();
 
@@ -193,7 +197,13 @@ $(document).ready(function() {
     $('#steps fieldset').eq(idx).addClass('current_step');
     var isResumen = $("#steps fieldset").eq(idx).attr("id");
     if (isResumen == "resumen") {
+
         var plazo = $("#selectPlazo").val();
+        var edad = Number($("#age").val());
+        var aportacion = $("#aportacion").val();
+        var periodicidad = $("#periodicidad option:selected").val();
+        deducible = new Deducible(edad, aportacion, periodicidad, plazo);
+
         var aportacionAnual;
         var edadFinal;
         for (var i = 1; i <= plazo; i++) {
@@ -209,8 +219,6 @@ $(document).ready(function() {
                         td.textContent = edadFinal;
                         break;
                     case 2:
-                        var aportacion = $("#aportacion").val();
-                        var periodicidad = $("#periodicidad option:selected").val();
                         var inflacion = $("#inflacion option:selected").val();
                         if (inflacion == 0) {
                           aportacionAnual = aportacion * periodicidad;
@@ -234,6 +242,8 @@ $(document).ready(function() {
                         td.textContent = Math.round(aportacionAcomulada);
                         break;
                     case 4:
+                        getSaldoFondo();
+
                         td.textContent = "SALDO DEL FONDO";
                         break;
                     case 5:
@@ -291,8 +301,76 @@ $(document).ready(function() {
   $('select').material_select();
 });
 
-/*
-$(document).ready(function() {
+function initFirebase() {
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyCufTHs0x-dMvcKfPJi0ETYQWMcY-vVk8Q",
+    authDomain: "cotizadorprevilife.firebaseapp.com",
+    databaseURL: "https://cotizadorprevilife.firebaseio.com",
+    storageBucket: "",
+  };
+  firebase.initializeApp(config);
+  db = firebase.database();
+}
 
- });
-*/
+function Deducible(edad, aportacion, periodicidad, plazo){
+  this.edad = edad;
+  this.aportacion = aportacion;
+  this.periodicidad = periodicidad;
+  this.plazo = plazo;
+}
+
+function getSaldoFondo() {
+
+  var tasaPortafolio = [];
+
+  db.ref("tasaPortafolio").on("value", function (snapshot) {
+    tasaPortafolio["pesosBalanceado"] = snapshot.val().pesosBalanceado;
+    tasaPortafolio["pesosConservador"] = snapshot.val().pesosConservador;
+    tasaPortafolio["pesosDinamico"] = snapshot.val().pesosDinamico;
+
+    var multBalanceado = tasaPortafolio["pesosBalanceado"] * $("#pesosBalanceado").val();
+    var multConservador = tasaPortafolio["pesosConservador"] * $("#pesosConservador").val();
+    var multDinamico = tasaPortafolio["pesosDinamico"] * $("#pesosDinamico").val();
+    var interesAnual = (multBalanceado + multDinamico + multConservador)/100;
+
+    setInteresAnual(interesAnual);
+  });
+};
+
+function setInteresAnual(interesAnual) {
+
+  interesMensual = Math.pow(1+interesAnual,1/12) - 1;
+  deducible.interesAnual = interesAnual;
+  deducible.interesMensual = interesMensual;
+
+  var aportacion = Number(deducible.aportacion);
+  var saldoInicial= [[]];
+  for (var i = 0; i < deducible.plazo; i++) {
+    var saldoAnterior = 0;
+    for (var j = 1; j <= 12; j++) {
+
+      var interes = Math.round((saldoAnterior + aportacion) * deducible.interesMensual);
+      var cargoFijo = 0;
+      var cargoAdministrativo = 0;
+      if (j == 1) {
+        cargoFijo = -500;
+      }
+      if (j % 3 == 0) {
+        cargoAdministrativo = Math.round(((saldoAnterior + aportacion + interes) * .015 * 1.16) * -1);
+      }
+      var cargoGestionInvercion = Math.round(((saldoAnterior + aportacion + interes + cargoFijo + cargoAdministrativo) * .001 * 1.16) * -1);
+      var saldoFinal = saldoAnterior + aportacion + interes + cargoFijo + cargoAdministrativo +cargoGestionInvercion;
+      saldoAnterior = saldoFinal;
+      saldoInicial[i][j] = saldoFinal;
+      console.log("j", j);
+      console.log("cargoAdministrativo", cargoAdministrativo);
+      console.log("cargoGestionInvercion", cargoGestionInvercion);
+      console.log("saldoFinal", saldoFinal);
+      console.log("saldoInicial", saldoInicial);
+    }
+    var incremento = aportacion * .04;
+    aportacion += incremento;
+    console.log("interes", interes);
+  }
+}
