@@ -345,15 +345,20 @@ function setInteresAnual(interesAnual) {
   deducible.interesMensual = interesMensual;
 
   var aportacion = Number(deducible.aportacion);
-  var saldoInicial= [[]];
+  var saldoInicial= [deducible.plazo];
+  var saldoAnterior = 0;
   for (var i = 0; i < deducible.plazo; i++) {
-    var saldoAnterior = 0;
+
+    var saldoFinalArr = [];
     for (var j = 1; j <= 12; j++) {
 
+      if (i >= 1 && j > 6) {
+        aportacion = 0;
+      }
       var interes = Math.round((saldoAnterior + aportacion) * deducible.interesMensual);
       var cargoFijo = 0;
       var cargoAdministrativo = 0;
-      if (j == 1) {
+      if (j == 1 && i == 0) {
         cargoFijo = -500;
       }
       if (j % 3 == 0) {
@@ -361,16 +366,24 @@ function setInteresAnual(interesAnual) {
       }
       var cargoGestionInvercion = Math.round(((saldoAnterior + aportacion + interes + cargoFijo + cargoAdministrativo) * .001 * 1.16) * -1);
       var saldoFinal = saldoAnterior + aportacion + interes + cargoFijo + cargoAdministrativo +cargoGestionInvercion;
-      saldoAnterior = saldoFinal;
-      saldoInicial[i][j] = saldoFinal;
+
+      console.log("i", i);
       console.log("j", j);
+      console.log("saldoAnterior", saldoAnterior);
+      console.log("aportacion", aportacion);
+      console.log("interes", interes);
+      console.log("cargoFijo", cargoFijo);
       console.log("cargoAdministrativo", cargoAdministrativo);
       console.log("cargoGestionInvercion", cargoGestionInvercion);
       console.log("saldoFinal", saldoFinal);
-      console.log("saldoInicial", saldoInicial);
+
+      saldoAnterior = saldoFinal;
+      saldoFinalArr[j] = saldoFinal;
+
     }
+    saldoInicial[i] = saldoFinalArr;
     var incremento = aportacion * .04;
     aportacion += incremento;
-    console.log("interes", interes);
   }
+  console.log("saldoInicial", saldoInicial);
 }
