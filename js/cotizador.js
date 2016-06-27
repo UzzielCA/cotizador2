@@ -202,7 +202,9 @@ $(document).ready(function() {
         var edad = Number($("#age").val());
         var aportacion = $("#aportacion").val();
         var periodicidad = $("#periodicidad option:selected").val();
-        deducible = new Deducible(edad, aportacion, periodicidad, plazo);
+        var inflacion = $("#inflacion option:selected").val();
+
+        deducible = new Deducible(edad, aportacion, periodicidad, plazo, inflacion);
 
         var aportacionAnual;
         var edadFinal;
@@ -219,8 +221,7 @@ $(document).ready(function() {
                         td.textContent = edadFinal;
                         break;
                     case 2:
-                        var inflacion = $("#inflacion option:selected").val();
-                        if (inflacion == 0) {
+                        if (deducible.inflacion == 0) {
                           aportacionAnual = aportacion * periodicidad;
                         } else {
                           if (i == 1) {
@@ -243,7 +244,7 @@ $(document).ready(function() {
                         break;
                     case 4:
                         getSaldoInicialDeducible();
-
+                        getSaldoComprometidoDeducible();
                         td.textContent = "SALDO DEL FONDO";
                         break;
                     case 5:
@@ -313,11 +314,62 @@ function initFirebase() {
   db = firebase.database();
 }
 
-function Deducible(edad, aportacion, periodicidad, plazo){
-  this.edad = edad;
-  this.aportacion = aportacion;
-  this.periodicidad = periodicidad;
-  this.plazo = plazo;
+function Deducible(edad, aportacion, periodicidad, plazo, inflacion){
+  this.edad = Number(edad);
+  this.aportacion = Number(aportacion);
+  this.periodicidad = Number(periodicidad);
+  this.plazo = Number(plazo);
+  this.inflacion = Number(inflacion);
+}
+
+function getSaldoComprometidoDeducible() {
+    var aportacionAnual = deducible.aportacion * deducible.periodicidad;
+    var buscar;
+    if (aportacionAnual < 12000) {
+        buscar = 0;
+    } else if (aportacionAnual == 12000 || aportacionAnual < 36000) {
+        buscar = 12000;
+    } else if (aportacionAnual == 36000 || aportacionAnual < 60000) {
+        buscar = 36000;
+    } else if (aportacionAnual == 60000 || aportacionAnual < 90000) {
+        buscar = 60000;
+    }else {
+        buscar = 90000;
+    }
+    db.ref("tablaBonos/plazo" + deducible.plazo + "/" + buscar).on("value", function (snapshot) {
+        calculaSaldoComprometido(snapshot.val());
+    });
+}
+
+function calculaSaldoComprometido(bono) {
+    var saldoAnterior = 0;
+    var porcentajeBono = bono/100;
+    var aportacion = 0
+    for (var i = 0; i < deducible.plazo; i++) {
+        for (var j = 1; j <= 12; j++) {
+            if (i == 1 && j > 6) {
+                aportacion = deducible.aportacion;
+            }
+            var bonoReal = aportacion * porcentajeBono;
+            var interes = (saldoAnterior + aportacion + bonoReal) * deducible.interesMensual;
+            var cargoFijo = 0;
+            var cargoAdministrativo = 0;
+            var cargoGestionInvercion = (saldoAnterior + aportacion + bonoReal + interes) * .001;
+
+            var saldoFinal = saldoAnterior + aportacion + bonoReal + interes + cargoFijo + cargoAdministrativo + cargoGestionInvercion;
+
+            console.log("i", i);
+            console.log("j", j);
+            console.log("saldoAnterior", saldoAnterior);
+            console.log("aportacion", aportacion);
+            console.log("bonoReal", bonoReal);
+            console.log("interes", interes);
+            console.log("cargoFijo", cargoFijo);
+            console.log("cargoAdministrativo", cargoAdministrativo);
+            console.log("cargoGestionInvercion", cargoGestionInvercion);
+            console.log("saldoFinal", saldoFinal);
+        }
+    }
 }
 
 function getSaldoInicialDeducible() {
@@ -375,5 +427,4 @@ function calculaSaldoFinal(interesAnual) {
     var incremento = aportacion * .04;
     aportacion += incremento;
   }
-  console.log("saldoInicial", saldoInicial);
 }
