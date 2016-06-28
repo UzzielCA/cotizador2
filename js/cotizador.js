@@ -245,6 +245,7 @@ $(document).ready(function() {
                     case 4:
                         getSaldoInicialDeducible();
                         getSaldoComprometidoDeducible();
+                        getSaldoFinalBonoDEducible();
                         td.textContent = "SALDO DEL FONDO";
                         break;
                     case 5:
@@ -322,6 +323,37 @@ function Deducible(edad, aportacion, periodicidad, plazo, inflacion){
   this.inflacion = Number(inflacion);
 }
 
+function getSaldoFinalBonoDEducible() {
+    var aportacionAnual = deducible.aportacion * deducible.periodicidad;
+    var buscar;
+    if (aportacionAnual < 12000) {
+        buscar = 0;
+    } else if (aportacionAnual == 12000 || aportacionAnual < 36000) {
+        buscar = 12000;
+    } else if (aportacionAnual == 36000 || aportacionAnual < 60000) {
+        buscar = 36000;
+    } else if (aportacionAnual == 60000 || aportacionAnual < 90000) {
+        buscar = 60000;
+    }else {
+        buscar = 90000;
+    }
+    db.ref("tablaBonos/plazo" + deducible.plazo + "/" + buscar).on("value", function (snapshot) {
+        calculaSaldoFinalBono(snapshot.val());
+    });
+}
+
+function calculaSaldoFinalBono(bono) {
+  var porcentajeBono = bono/100;
+  var saldoAnterior = 0;
+  var bonoCalculado = deducible.aportacion * porcentajeBono;
+  var interes = (saldoAnterior + bonoCalculado) * deducible.interesMensual;
+  interes = interes.toFixed(0);
+  console.log("deducible", deducible);
+  console.log("saldoAnterior", saldoAnterior);
+  console.log("bonoCalculado", bonoCalculado);
+  console.log("interes", interes);
+}
+
 function getSaldoComprometidoDeducible() {
     var aportacionAnual = deducible.aportacion * deducible.periodicidad;
     var buscar;
@@ -344,6 +376,7 @@ function getSaldoComprometidoDeducible() {
 function calculaSaldoComprometido(bono) {
     var saldoAnterior = 0;
     var porcentajeBono = bono/100;
+    deducible.bono = porcentajeBono;
     var inflacion = .04;
     var udi = 5.08;
     var aportacion = deducible.aportacion;
@@ -375,14 +408,12 @@ function calculaSaldoComprometido(bono) {
               saldoFinal = Number(saldoFinal.toFixed(0));
               saldoAnterior = saldoFinal;
             }
-
             saldoFinalArr[j] = saldoFinal;
         }
         saldoComprometido[i] = saldoFinalArr;
         var incremento = aportacion * .04;
         aportacion += incremento;
     }
-    console.log("saldoComprometido", saldoComprometido);
 }
 
 function getSaldoInicialDeducible() {
