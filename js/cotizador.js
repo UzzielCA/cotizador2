@@ -344,32 +344,45 @@ function getSaldoComprometidoDeducible() {
 function calculaSaldoComprometido(bono) {
     var saldoAnterior = 0;
     var porcentajeBono = bono/100;
-    var aportacion = 0
+    var inflacion = .04;
+    var udi = 5.08;
+    var aportacion = deducible.aportacion;
+    var bonoReal = 0;
+    var interes = 0;
+    var cargoFijo = 0;
+    var cargoAdministrativo = 0;
+    var cargoGestionInvercion = 0
+    var saldoFinal = 0;
+    var saldoComprometido = [];
     for (var i = 0; i < deducible.plazo; i++) {
+      var saldoFinalArr = [];
         for (var j = 1; j <= 12; j++) {
+          var isCalculo = 0;
             if (i == 1 && j > 6) {
-                aportacion = deducible.aportacion;
+              isCalculo = 1;
+            } else if (i > 1) {
+              isCalculo = 1;
             }
-            var bonoReal = aportacion * porcentajeBono;
-            var interes = (saldoAnterior + aportacion + bonoReal) * deducible.interesMensual;
-            var cargoFijo = 0;
-            var cargoAdministrativo = 0;
-            var cargoGestionInvercion = (saldoAnterior + aportacion + bonoReal + interes) * .001;
+            if (isCalculo == 1) {
+              bonoReal = 0;
+              interes = Math.round((saldoAnterior + aportacion + bonoReal) * deducible.interesMensual);
+              cargoFijo = (15 * udi * (1 + inflacion) * 1.16) * -1;
+              cargoFijo = Number(cargoFijo.toFixed(2));
+              cargoAdministrativo = 0;
+              cargoGestionInvercion = ((saldoAnterior + aportacion + bonoReal + interes + cargoFijo) * .001 * 1.16) * -1;
+              cargoGestionInvercion = Number(cargoGestionInvercion.toFixed(2));
+              saldoFinal = saldoAnterior + aportacion + bonoReal + interes + cargoFijo + cargoAdministrativo + cargoGestionInvercion;
+              saldoFinal = Number(saldoFinal.toFixed(0));
+              saldoAnterior = saldoFinal;
+            }
 
-            var saldoFinal = saldoAnterior + aportacion + bonoReal + interes + cargoFijo + cargoAdministrativo + cargoGestionInvercion;
-
-            console.log("i", i);
-            console.log("j", j);
-            console.log("saldoAnterior", saldoAnterior);
-            console.log("aportacion", aportacion);
-            console.log("bonoReal", bonoReal);
-            console.log("interes", interes);
-            console.log("cargoFijo", cargoFijo);
-            console.log("cargoAdministrativo", cargoAdministrativo);
-            console.log("cargoGestionInvercion", cargoGestionInvercion);
-            console.log("saldoFinal", saldoFinal);
+            saldoFinalArr[j] = saldoFinal;
         }
+        saldoComprometido[i] = saldoFinalArr;
+        var incremento = aportacion * .04;
+        aportacion += incremento;
     }
+    console.log("saldoComprometido", saldoComprometido);
 }
 
 function getSaldoInicialDeducible() {
