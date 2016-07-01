@@ -1,9 +1,6 @@
 var firebase;
 var db;
 var deducible;
-var saldoFinalBonoArr = [];
-var saldoComprometido = [];
-var saldoInicial= [];
 
 $(document).ready(function() {
 
@@ -211,6 +208,11 @@ $(document).ready(function() {
 
         var aportacionAnual;
         var edadFinal;
+
+        getSaldoInicialDeducible();
+        getSaldoComprometidoDeducible();
+        getSaldoFinalBonoDEducible();
+
         for (var i = 1; i <= plazo; i++) {
             var tr = document.createElement("tr");
             for (var j = 0; j < 8; j++) {
@@ -246,9 +248,6 @@ $(document).ready(function() {
                         td.textContent = Math.round(aportacionAcomulada);
                         break;
                     case 4:
-                        getSaldoInicialDeducible();
-                        getSaldoComprometidoDeducible();
-                        getSaldoFinalBonoDEducible();
                         td.textContent = "SALDO DEL FONDO";
                         break;
                     case 5:
@@ -329,7 +328,7 @@ function Deducible(edad, aportacion, periodicidad, plazo, inflacion){
 function getSaldoFinalBonoDEducible() {
     var aportacionAnual = deducible.aportacion * deducible.periodicidad;
     var buscar;
-    var saldoFinalBonoArr1;
+    var saldoFinalBonoArr;
     if (aportacionAnual < 12000) {
         buscar = 0;
     } else if (aportacionAnual == 12000 || aportacionAnual < 36000) {
@@ -342,12 +341,18 @@ function getSaldoFinalBonoDEducible() {
         buscar = 90000;
     }
     db.ref("tablaBonos/plazo" + deducible.plazo + "/" + buscar).on("value", function (snapshot) {
-        saldoFinalBonoArr1 = calculaSaldoFinalBono(snapshot.val());
-        console.log("saldoFinalBonoArr1", saldoFinalBonoArr1);
+        saldoFinalBonoArr = calculaSaldoFinalBono(snapshot.val());
+        setSaldoFondoBono(saldoFinalBonoArr);
     });
 }
 
+function setSaldoFondoBono(saldoFinalBonoArr) {
+  db.ref("SaldoFondo/Bono").set(saldoFinalBonoArr);
+}
+
 function calculaSaldoFinalBono(bono) {
+  var saldoFinalBonoArr = [];
+
   var porcentajeBono = bono/100;
   var saldoAnterior = 0;
   var bonoCalculado = deducible.aportacion * porcentajeBono;
@@ -379,7 +384,7 @@ function calculaSaldoFinalBono(bono) {
 function getSaldoComprometidoDeducible() {
     var aportacionAnual = deducible.aportacion * deducible.periodicidad;
     var buscar;
-    var saldoComprometido1;
+    var saldoComprometido;
     if (aportacionAnual < 12000) {
         buscar = 0;
     } else if (aportacionAnual == 12000 || aportacionAnual < 36000) {
@@ -392,12 +397,18 @@ function getSaldoComprometidoDeducible() {
         buscar = 90000;
     }
     db.ref("tablaBonos/plazo" + deducible.plazo + "/" + buscar).on("value", function (snapshot) {
-        saldoComprometido1 = calculaSaldoComprometido(snapshot.val());
-        console.log("saldoComprometido1", saldoComprometido1);
+        saldoComprometido = calculaSaldoComprometido(snapshot.val());
+        setSaldoFondoComprometido(saldoComprometido);
     });
 }
 
+function setSaldoFondoComprometido(saldoComprometido) {
+  db.ref("SaldoFondo/Comprometido").set(saldoComprometido);
+}
+
 function calculaSaldoComprometido(bono) {
+    var saldoComprometido = [];
+
     var saldoAnterior = 0;
     var porcentajeBono = bono/100;
     deducible.bono = porcentajeBono;
@@ -410,6 +421,7 @@ function calculaSaldoComprometido(bono) {
     var cargoAdministrativo = 0;
     var cargoGestionInvercion = 0
     var saldoFinal = 0;
+
     for (var i = 0; i < deducible.plazo; i++) {
       var saldoFinalArr = [];
         for (var j = 1; j <= 12; j++) {
@@ -443,7 +455,7 @@ function calculaSaldoComprometido(bono) {
 function getSaldoInicialDeducible() {
 
   var tasaPortafolio = [];
-  var saldoInicial1;
+  var saldoInicial;
   db.ref("tasaPortafolio").on("value", function (snapshot) {
     tasaPortafolio["pesosBalanceado"] = snapshot.val().pesosBalanceado;
     tasaPortafolio["pesosConservador"] = snapshot.val().pesosConservador;
@@ -454,12 +466,17 @@ function getSaldoInicialDeducible() {
     var multDinamico = tasaPortafolio["pesosDinamico"] * $("#pesosDinamico").val();
     var interesAnual = (multBalanceado + multDinamico + multConservador)/100;
 
-    saldoInicial1 = calculaSaldoFinal(interesAnual);
-    console.log("saldoInicial1", saldoInicial1);
+    saldoInicial = calculaSaldoFinal(interesAnual);
+    setSaldoFondoInicial(saldoInicial);
   });
 };
 
+function setSaldoFondoInicial(saldoInicial) {
+  db.ref("SaldoFondo/Inicial").set(saldoInicial);
+}
+
 function calculaSaldoFinal(interesAnual) {
+  var saldoInicial= [];
 
   interesMensual = Math.pow(1+interesAnual,1/12) - 1;
   deducible.interesAnual = interesAnual;
