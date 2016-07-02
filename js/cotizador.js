@@ -236,7 +236,7 @@ $(document).ready(function() {
                             aportacionAnual += incremento;
                           }
                         }
-                        td.textContent = Math.round(aportacionAnual);
+                        td.textContent = aportacionAnual.toFixed(0);
                         break;
                     case 3:
                         var aportacionAcomulada;
@@ -245,10 +245,10 @@ $(document).ready(function() {
                         } else {
                           aportacionAcomulada += aportacionAnual;
                         }
-                        td.textContent = Math.round(aportacionAcomulada);
+                        td.textContent = aportacionAcomulada.toFixed(0);
                         break;
                     case 4:
-                        td.textContent = "SALDO DEL FONDO";
+                        td.id = "saldoFondo_" + i;
                         break;
                     case 5:
                         td.textContent = "SALDO DISPONIBLE";
@@ -264,7 +264,7 @@ $(document).ready(function() {
             }
             $("#tableDetalle").append(tr);
         }
-        $("#aportacionAcomulada").html(Math.round(aportacionAcomulada));
+        $("#aportacionAcomulada").html(aportacionAcomulada.toFixed(0));
         $("#edadProyectada").html(edadFinal);
 
     }
@@ -303,6 +303,16 @@ $(document).ready(function() {
   }
   $("#divSelectPlazo").append(selectPlazo);
   $('select').material_select();
+
+  db.ref("SaldoFondo").on("value", function (snapshot) {
+      var value = snapshot.val();
+      for (var i = 0; i < value.Bono.length; i++) {
+          var saldoFondo = value.Bono[i][12] + value.Comprometido[i][12] + value.Inicial[i][12];
+          console.log("SaldoFondo", saldoFondo);
+          $("#saldoFondo_" + (i+1)).html(saldoFondo);
+      }
+  });
+
 });
 
 function initFirebase() {
@@ -433,7 +443,8 @@ function calculaSaldoComprometido(bono) {
             }
             if (isCalculo == 1) {
               bonoReal = 0;
-              interes = Math.round((saldoAnterior + aportacion + bonoReal) * deducible.interesMensual);
+              interes = (saldoAnterior + aportacion + bonoReal) * deducible.interesMensual;
+              interes = Number(interes.toFixed(0));
               cargoFijo = (15 * udi * (1 + inflacion) * 1.16) * -1;
               cargoFijo = Number(cargoFijo.toFixed(2));
               cargoAdministrativo = 0;
@@ -492,16 +503,19 @@ function calculaSaldoFinal(interesAnual) {
       if (i >= 1 && j > 6) {
         aportacion = 0;
       }
-      var interes = Math.round((saldoAnterior + aportacion) * deducible.interesMensual);
+      var interes = (saldoAnterior + aportacion) * deducible.interesMensual;
+      interes = Number(interes.toFixed(0));
       var cargoFijo = 0;
       var cargoAdministrativo = 0;
       if (j == 1 && i == 0) {
         cargoFijo = -500;
       }
       if (j % 3 == 0) {
-        cargoAdministrativo = Math.round(((saldoAnterior + aportacion + interes) * .015 * 1.16) * -1);
+        cargoAdministrativo = ((saldoAnterior + aportacion + interes) * .015 * 1.16) * -1;
+        cargoAdministrativo = Number(cargoAdministrativo.toFixed(0));
       }
-      var cargoGestionInvercion = Math.round(((saldoAnterior + aportacion + interes + cargoFijo + cargoAdministrativo) * .001 * 1.16) * -1);
+      var cargoGestionInvercion = ((saldoAnterior + aportacion + interes + cargoFijo + cargoAdministrativo) * .001 * 1.16) * -1;
+      cargoGestionInvercion = Number(cargoGestionInvercion.toFixed(0));
       var saldoFinal = saldoAnterior + aportacion + interes + cargoFijo + cargoAdministrativo +cargoGestionInvercion
 
       saldoAnterior = saldoFinal;
