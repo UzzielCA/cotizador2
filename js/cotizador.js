@@ -254,7 +254,7 @@ $(document).ready(function() {
                         td.id = "saldoDisponible_" + i;
                         break;
                     case 6:
-                        td.textContent = "SALDO DISPONIBLE NETO DE RETENCIÓN DE IMPUESTOS DE ALLIANZ";
+                        td.id = "saldoDisponibleNeto_" + i;
                         break;
                     case 7:
                         td.textContent = "BENEFICIO DEDUCIBILIDADACUMILADO Y RE-INVERTIDO A TASA 12%";
@@ -318,6 +318,13 @@ $(document).ready(function() {
             saldoDisponible = value.Comprometido[i][12];
           }
           $("#saldoDisponible_" + año).html(saldoDisponible);
+
+          var saldoDisponibleNeto;
+          // TODO: validar que la edad proyectada en el año calculando sea menor a 65
+          saldoDisponibleNeto = saldoDisponible * .8;
+          saldoDisponibleNeto = Number(saldoDisponibleNeto.toFixed(0));
+
+          $("#saldoDisponibleNeto_" + año).html(saldoDisponibleNeto);
       }
   });
 
