@@ -308,9 +308,16 @@ $(document).ready(function() {
       var value = snapshot.val();
       for (var i = 0; i < value.Bono.length; i++) {
           var saldoFondo = value.Bono[i][12] + value.Comprometido[i][12] + value.Inicial[i][12];
+          var año = i + 1;
           console.log("SaldoFondo", saldoFondo);
-          $("#saldoFondo_" + (i+1)).html(saldoFondo);
-          $("#saldoDisponible_" + (i+1)).html(value.Comprometido[i][12]);
+          $("#saldoFondo_" + año).html(saldoFondo);
+          var saldoDisponible;
+          if (año >value.Bono.length) {
+            saldoDisponible = saldoFondo;
+          } else {
+            saldoDisponible = value.Comprometido[i][12];
+          }
+          $("#saldoDisponible_" + año).html(saldoDisponible);
       }
   });
 
