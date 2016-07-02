@@ -251,7 +251,7 @@ $(document).ready(function() {
                         td.id = "saldoFondo_" + i;
                         break;
                     case 5:
-                        td.textContent = "SALDO DISPONIBLE";
+                        td.id = "saldoDisponible_" + i;
                         break;
                     case 6:
                         td.textContent = "SALDO DISPONIBLE NETO DE RETENCIÓN DE IMPUESTOS DE ALLIANZ";
@@ -310,6 +310,7 @@ $(document).ready(function() {
           var saldoFondo = value.Bono[i][12] + value.Comprometido[i][12] + value.Inicial[i][12];
           console.log("SaldoFondo", saldoFondo);
           $("#saldoFondo_" + (i+1)).html(saldoFondo);
+          $("#saldoDisponible_" + (i+1)).html(value.Comprometido[i][12]);
       }
   });
 
