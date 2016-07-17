@@ -3,6 +3,7 @@ var db;
 var deducible;
 
 $(document).ready(function() {
+  $("#divResumen").hide();
 
   //Ckech mark SVG icon point
   var svg_valid_icon = "21.4,4.7 21.4,4.7 21.4,4.7 18.6,7.5 18.6,7.5 8.7,17.4 3,11.7 0,14.5 5.9,20.2 8.7,23 20.2,11.5 24.2,7.5";
@@ -195,79 +196,7 @@ $(document).ready(function() {
   function next_step(idx) {
     $('#steps fieldset').eq(idx - 1).removeClass('current_step');
     $('#steps fieldset').eq(idx).addClass('current_step');
-    var isResumen = $("#steps fieldset").eq(idx).attr("id");
-    if (isResumen == "resumen") {
 
-        var plazo = $("#selectPlazo").val();
-        var edad = Number($("#age").val());
-        var aportacion = $("#aportacion").val();
-        var periodicidad = $("#periodicidad option:selected").val();
-        var inflacion = $("#inflacion option:selected").val();
-
-        deducible = new Deducible(edad, aportacion, periodicidad, plazo, inflacion);
-
-        var aportacionAnual;
-        var edadFinal;
-
-        getSaldoInicialDeducible();
-        getSaldoComprometidoDeducible();
-        getSaldoFinalBonoDEducible();
-
-        for (var i = 1; i <= plazo; i++) {
-            var tr = document.createElement("tr");
-            for (var j = 0; j < 8; j++) {
-                var td = document.createElement("td");
-                switch (j) {
-                    case 0:
-                        td.textContent = i;
-                        break;
-                    case 1:
-                        edadFinal = Number($("#age").val()) + i
-                        td.textContent = edadFinal;
-                        break;
-                    case 2:
-                        if (deducible.inflacion == 0) {
-                          aportacionAnual = aportacion * periodicidad;
-                        } else {
-                          if (i == 1) {
-                            aportacionAnual = aportacion * periodicidad;
-                          } else {
-                            var incremento = aportacionAnual * .04;
-                            aportacionAnual += incremento;
-                          }
-                        }
-                        td.textContent = aportacionAnual.toFixed(0);
-                        break;
-                    case 3:
-                        var aportacionAcomulada;
-                        if (i == 1) {
-                          aportacionAcomulada = aportacionAnual;
-                        } else {
-                          aportacionAcomulada += aportacionAnual;
-                        }
-                        td.textContent = aportacionAcomulada.toFixed(0);
-                        break;
-                    case 4:
-                        td.id = "saldoFondo_" + i;
-                        break;
-                    case 5:
-                        td.id = "saldoDisponible_" + i;
-                        break;
-                    case 6:
-                        td.id = "saldoDisponibleNeto_" + i;
-                        break;
-                    case 7:
-                        td.textContent = "BENEFICIO DEDUCIBILIDADACUMILADO Y RE-INVERTIDO A TASA 12%";
-                        break;
-                }
-                tr.appendChild(td);
-            }
-            $("#tableDetalle").append(tr);
-        }
-        $("#aportacionAcomulada").html(aportacionAcomulada.toFixed(0));
-        $("#edadProyectada").html(edadFinal);
-
-    }
     update_progress(idx + 1);
   }
 
@@ -285,7 +214,104 @@ $(document).ready(function() {
 
   //Function to send the form or show a message
   function form_ready() {
+      ////Esto es lo de antes
+
+              var plazo = $("#selectPlazo").val();
+              var edad = Number($("#age").val());
+              var aportacion = $("#aportacion").val();
+              var periodicidad = $("#periodicidad option:selected").val();
+              var inflacion = $("#inflacion option:selected").val();
+
+              deducible = new Deducible(edad, aportacion, periodicidad, plazo, inflacion);
+
+              var aportacionAnual;
+              var edadFinal;
+
+              getSaldoInicialDeducible();
+              getSaldoComprometidoDeducible();
+              getSaldoFinalBonoDEducible();
+
+              for (var i = 1; i <= plazo; i++) {
+                  var tr = document.createElement("tr");
+                  for (var j = 0; j < 8; j++) {
+                      var td = document.createElement("td");
+                      switch (j) {
+                          case 0:
+                              td.textContent = i;
+                              break;
+                          case 1:
+                              edadFinal = Number($("#age").val()) + i
+                              td.textContent = edadFinal;
+                              break;
+                          case 2:
+                              if (deducible.inflacion == 0) {
+                                aportacionAnual = aportacion * periodicidad;
+                              } else {
+                                if (i == 1) {
+                                  aportacionAnual = aportacion * periodicidad;
+                                } else {
+                                  var incremento = aportacionAnual * .04;
+                                  aportacionAnual += incremento;
+                                }
+                              }
+                              td.textContent = aportacionAnual.toFixed(0);
+                              break;
+                          case 3:
+                              var aportacionAcomulada;
+                              if (i == 1) {
+                                aportacionAcomulada = aportacionAnual;
+                              } else {
+                                aportacionAcomulada += aportacionAnual;
+                              }
+                              td.textContent = aportacionAcomulada.toFixed(0);
+                              break;
+                          case 4:
+                              td.id = "saldoFondo_" + i;
+                              break;
+                          case 5:
+                              td.id = "saldoDisponible_" + i;
+                              break;
+                          case 6:
+                              td.id = "saldoDisponibleNeto_" + i;
+                              break;
+                          case 7:
+                              td.textContent = "BENEFICIO DEDUCIBILIDADACUMILADO Y RE-INVERTIDO A TASA 12%";
+                              break;
+                      }
+                      tr.appendChild(td);
+                  }
+                  $("#tableDetalle").append(tr);
+              }
+              $("#aportacionAcomulada").html(aportacionAcomulada.toFixed(0));
+              $("#edadProyectada").html(edadFinal);
+
+              db.ref("SaldoFondo").on("value", function (snapshot) {
+                  var value = snapshot.val();
+                  for (var i = 0; i < value.Bono.length; i++) {
+                      var saldoFondo = value.Bono[i][12] + value.Comprometido[i][12] + value.Inicial[i][12];
+                      var año = i + 1;
+                      console.log("SaldoFondo", saldoFondo);
+                      $("#saldoFondo_" + año).html(saldoFondo);
+                      var saldoDisponible;
+                      if (año >value.Bono.length) {
+                        saldoDisponible = saldoFondo;
+                      } else {
+                        saldoDisponible = value.Comprometido[i][12];
+                      }
+                      $("#saldoDisponible_" + año).html(saldoDisponible);
+
+                      var saldoDisponibleNeto;
+                      // TODO: validar que la edad proyectada en el año calculando sea menor a 65
+                      saldoDisponibleNeto = saldoDisponible * .8;
+                      saldoDisponibleNeto = Number(saldoDisponibleNeto.toFixed(0));
+
+                      $("#saldoDisponibleNeto_" + año).html(saldoDisponibleNeto);
+                  }
+              });
+      ///////////////////////
     alert('Thanks for filling up the form!');
+    $("#divForm").hide();
+    $("#divResumen").show();
   }
 
   //Function to update step number(visible on small size screens)
@@ -303,30 +329,6 @@ $(document).ready(function() {
   }
   $("#divSelectPlazo").append(selectPlazo);
   $('select').material_select();
-
-  db.ref("SaldoFondo").on("value", function (snapshot) {
-      var value = snapshot.val();
-      for (var i = 0; i < value.Bono.length; i++) {
-          var saldoFondo = value.Bono[i][12] + value.Comprometido[i][12] + value.Inicial[i][12];
-          var año = i + 1;
-          console.log("SaldoFondo", saldoFondo);
-          $("#saldoFondo_" + año).html(saldoFondo);
-          var saldoDisponible;
-          if (año >value.Bono.length) {
-            saldoDisponible = saldoFondo;
-          } else {
-            saldoDisponible = value.Comprometido[i][12];
-          }
-          $("#saldoDisponible_" + año).html(saldoDisponible);
-
-          var saldoDisponibleNeto;
-          // TODO: validar que la edad proyectada en el año calculando sea menor a 65
-          saldoDisponibleNeto = saldoDisponible * .8;
-          saldoDisponibleNeto = Number(saldoDisponibleNeto.toFixed(0));
-
-          $("#saldoDisponibleNeto_" + año).html(saldoDisponibleNeto);
-      }
-  });
 
 });
 
