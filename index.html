@@ -119,58 +119,76 @@
 			</div>
 		</div>
 		<div class="row" id="divResumen">
-			<fieldset id="resumen">
-				<table class="bordered">
-					<tr>
-						<th>Aportaciones Acomuladas</th>
-						<th>Saldo proyectado a edad <b id="edadProyectada"></b></th>
-					</tr>
-					<tr>
-						<td id="aportacionAcomulada"></td>
-						<td id="saldoProyectado"></td>
-					</tr>
-				</table>
-				<br>
-				<table class="bordered">
-					<tr>
-						<th>% de Bono Acreditado</th>
-						<th>Bono Acreditado</th>
-					</tr>
-					<tr>
-						<td id="porcentajeBonoAcreditado"></td>
-						<td id="bonoAcreditado"></td>
-					</tr>
-				</table>
-			</fieldset>
-			<fieldset id="detalle">
-				<table class="responsive-table bordered highlight" id="tableDetalle">
-					<thead>
-						<tr>
-							<th>AÑO</th>
-							<th>EDAD</th>
-							<th>APORTACIÓN ANUAL</th>
-							<th>APORTACIÓN ACOMULADA</th>
-							<th>SALDO DEL FONDO</th>
-							<th>SALDO DISPONIBLE</th>
-							<th>SALDO DISPONIBLE NETO DE RETENCIÓN DE IMPUESTOS DE ALLIANZ</th>
-							<th>BENEFICIO DEDUCIBILIDADACUMILADO Y RE-INVERTIDO A TASA 12%</th>
-						</tr>
-					</thead>
+			<div id="resumen" class="col s12">
+				<div class="card">
+					<div class="card-content">
+						<span class="card-title blue-text text-darken-4">
+							<b>
+								RESUMEN
+							</b>
+						</span>
+						<table class="bordered">
+							<tr>
+								<th>Aportaciones Acomuladas</th>
+								<th>Saldo proyectado a edad <b id="edadProyectada"></b></th>
+							</tr>
+							<tr>
+								<td id="aportacionAcomulada"></td>
+								<td id="saldoProyectado"></td>
+							</tr>
+						</table>
+						<br>
+						<table class="bordered">
+							<tr>
+								<th>% de Bono Acreditado</th>
+								<th>Bono Acreditado</th>
+							</tr>
+							<tr>
+								<td id="porcentajeBonoAcreditado"></td>
+								<td id="bonoAcreditado"></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div id="detalle" class="col s12">
+				<div class="card">
+					<div class="card-content">
+						<span class="card-title blue-text text-darken-4">
+							<b>
+								DETALLE
+							</b>
+						</span>
+						<table class="responsive-table bordered highlight" id="tableDetalle">
+							<thead>
+								<tr>
+									<th>AÑO</th>
+									<th>EDAD</th>
+									<th>APORTACIÓN ANUAL</th>
+									<th>APORTACIÓN ACOMULADA</th>
+									<th>SALDO DEL FONDO</th>
+									<th>SALDO DISPONIBLE</th>
+									<th>SALDO DISPONIBLE NETO DE RETENCIÓN DE IMPUESTOS DE ALLIANZ</th>
+									<th>BENEFICIO DEDUCIBILIDAD ACUMILADO Y RE-INVERTIDO A TASA 12%</th>
+								</tr>
+							</thead>
 
-					<!--<tr>
-						<td colspan="3">Aportaciones Acomuladas a edad de </td>
-						<td>324234234</td>
-						<td colspan="3">Tasa anual proyectada</td>
-						<td>12%</td>
-					</tr>
-					<tr>
-						<td colspan="3">Saldo proyectado a edad de </td>
-						<td>324234234</td>
-						<td colspan="3">Valor acumulado del beneficio fiscal a edad</td>
-						<td>480</td>
-					</tr>-->
-				</table>
-			</fieldset>
+							<!--<tr>
+								<td colspan="3">Aportaciones Acomuladas a edad de </td>
+								<td>324234234</td>
+								<td colspan="3">Tasa anual proyectada</td>
+								<td>12%</td>
+							</tr>
+							<tr>
+								<td colspan="3">Saldo proyectado a edad de </td>
+								<td>324234234</td>
+								<td colspan="3">Valor acumulado del beneficio fiscal a edad</td>
+								<td>480</td>
+							</tr>-->
+						</table>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 

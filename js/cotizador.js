@@ -275,7 +275,7 @@ $(document).ready(function() {
                               td.id = "saldoDisponibleNeto_" + i;
                               break;
                           case 7:
-                              td.textContent = "BENEFICIO DEDUCIBILIDADACUMILADO Y RE-INVERTIDO A TASA 12%";
+                              td.textContent = "TO-DO";
                               break;
                       }
                       tr.appendChild(td);
@@ -309,7 +309,6 @@ $(document).ready(function() {
                   }
               });
       ///////////////////////
-    alert('Thanks for filling up the form!');
     $("#divForm").hide();
     $("#divResumen").show();
   }
