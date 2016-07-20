@@ -388,6 +388,10 @@ function calculaSaldoFinalBono(bono) {
       var saldoFinalArr = [];
       for (var j = 1; j <= 12; j++) {
           console.log("MES :::::::::::::::::::::::::", j);
+          if (i > 0) {
+              bonoCalculado = 0;
+          }
+
           var interes = (saldoAnterior + bonoCalculado) * deducible.interesMensual;
           interes = Number(interes.toFixed(0));
           var cargoAdministrativo = 0;
