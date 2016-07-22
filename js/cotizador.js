@@ -290,6 +290,8 @@ $(document).ready(function() {
                   for (var i = 0; i < value.Bono.length; i++) {
                       var saldoFondo = value.Bono[i][12] + value.Comprometido[i][12] + value.Inicial[i][12];
                       var año = i + 1;
+                      console.log("año :: ", año);
+                      console.log("" + value.Bono[i][12] + "+" + value.Comprometido[i][12] + "+" + value.Inicial[i][12]);
                       console.log("SaldoFondo", saldoFondo);
                       $("#saldoFondo_" + año).html(saldoFondo);
                       var saldoDisponible;
@@ -384,10 +386,10 @@ function calculaSaldoFinalBono(bono) {
   var bonoCalculado = deducible.aportacion * porcentajeBono;
 
   for (var i = 0; i < deducible.plazo; i++) {
-      console.log("AÑO ::::::::::::::::::::::::::::::::::::", i);
+      //console.log("AÑO ::::::::::::::::::::::::::::::::::::", i);
       var saldoFinalArr = [];
       for (var j = 1; j <= 12; j++) {
-          console.log("MES :::::::::::::::::::::::::", j);
+          //console.log("MES :::::::::::::::::::::::::", j);
           if (i > 0) {
               bonoCalculado = 0;
           }
@@ -404,12 +406,12 @@ function calculaSaldoFinalBono(bono) {
           cargoGestionInvercion = Number(cargoGestionInvercion.toFixed(0));
 
           var saldoFinal = saldoAnterior + bonoCalculado + interes + cargoAdministrativo +cargoGestionInvercion;
-          console.log("saldoAnterior", saldoAnterior);
-          console.log("bonoCalculado", bonoCalculado);
-          console.log("interes", interes);
-          console.log("cargoAdministrativo", cargoAdministrativo);
-          console.log("cargoGestionInvercion", cargoGestionInvercion);
-          console.log("saldoFinal", saldoFinal);
+          //console.log("saldoAnterior", saldoAnterior);
+          //console.log("bonoCalculado", bonoCalculado);
+          //console.log("interes", interes);
+          //console.log("cargoAdministrativo", cargoAdministrativo);
+          //console.log("cargoGestionInvercion", cargoGestionInvercion);
+          //console.log("saldoFinal", saldoFinal);
           saldoFinalArr[j] = saldoFinal;
 
           saldoAnterior = saldoFinal;
@@ -461,10 +463,10 @@ function calculaSaldoComprometido(bono) {
     var saldoFinal = 0;
 
     for (var i = 0; i < deducible.plazo; i++) {
-        //console.log("Año :::::::::::::::::::::::::::::::::::::::::::", i);
+        console.log("Año :::::::::::::::::::::::::::::::::::::::::::", i);
       var saldoFinalArr = [];
         for (var j = 1; j <= 12; j++) {
-            //console.log("MES :::::::::::::::::::::::::::::::::::::::", j);
+            console.log("MES :::::::::::::::::::::::::::::::::::::::", j);
           var isCalculo = 0;
             if (i == 1 && j > 6) {
               isCalculo = 1;
@@ -474,23 +476,20 @@ function calculaSaldoComprometido(bono) {
             if (isCalculo == 1) {
               bonoReal = 0;
               interes = (saldoAnterior + aportacion + bonoReal) * deducible.interesMensual;
-              interes = Number(interes.toFixed(0));
+              // TODO: checar el cargo fijo (tiene que ir aumentando cada año con la inflacion)
               cargoFijo = (15 * udi * (1 + inflacion) * 1.16) * -1;
-              cargoFijo = Number(cargoFijo.toFixed(2));
               cargoAdministrativo = 0;
               cargoGestionInvercion = ((saldoAnterior + aportacion + bonoReal + interes + cargoFijo) * .001 * 1.16) * -1;
-              cargoGestionInvercion = Number(cargoGestionInvercion.toFixed(2));
               saldoFinal = saldoAnterior + aportacion + bonoReal + interes + cargoFijo + cargoAdministrativo + cargoGestionInvercion;
-              saldoFinal = Number(saldoFinal.toFixed(0));
 
-                //console.log("saldoAnterior", saldoAnterior);
-                //console.log("aportacion", aportacion);
-                //console.log("bonoReal", bonoReal);
-                //console.log("interes", interes);
-                //console.log("cargoFijo", cargoFijo);
-                //console.log("cargoAdministrativo", cargoAdministrativo);
-                //console.log("cargoGestionInvercion", cargoGestionInvercion);
-                //console.log("saldoFinal", saldoFinal);
+              console.log("saldoAnterior", saldoAnterior);
+              console.log("aportacion", aportacion);
+              console.log("bonoReal", bonoReal);
+              console.log("interes", interes);
+              console.log("cargoFijo", cargoFijo);
+              console.log("cargoAdministrativo", cargoAdministrativo);
+              console.log("cargoGestionInvercion", cargoGestionInvercion);
+              console.log("saldoFinal", saldoFinal.toFixed(0));
 
               saldoAnterior = saldoFinal;
             }
@@ -518,6 +517,7 @@ function getSaldoInicialDeducible() {
     var interesAnual = (multBalanceado + multDinamico + multConservador)/100;
 
     saldoInicial = calculaSaldoFinal(interesAnual);
+
     setSaldoFondoInicial(saldoInicial);
   });
 };
@@ -536,7 +536,6 @@ function calculaSaldoFinal(interesAnual) {
   var aportacion = Number(deducible.aportacion);
   var saldoAnterior = 0;
   for (var i = 0; i < deducible.plazo; i++) {
-     //console.log("año ::::::::", i);
     var saldoFinalArr = [];
     for (var j = 1; j <= 12; j++) {
 
@@ -544,7 +543,7 @@ function calculaSaldoFinal(interesAnual) {
         aportacion = 0;
       }
       var interes = (saldoAnterior + aportacion) * deducible.interesMensual;
-      interes = Number(interes.toFixed(0));
+      interes = Number(interes);
       var cargoFijo = 0;
       var cargoAdministrativo = 0;
       if (j == 1 && i == 0) {
@@ -552,24 +551,14 @@ function calculaSaldoFinal(interesAnual) {
       }
       if (j % 3 == 0) {
         cargoAdministrativo = ((saldoAnterior + aportacion + interes) * .015 * 1.16) * -1;
-        cargoAdministrativo = Number(cargoAdministrativo.toFixed(0));
+        cargoAdministrativo = Number(cargoAdministrativo);
       }
       var cargoGestionInvercion = ((saldoAnterior + aportacion + interes + cargoFijo + cargoAdministrativo) * .001 * 1.16) * -1;
-      cargoGestionInvercion = Number(cargoGestionInvercion.toFixed(0));
+      cargoGestionInvercion = Number(cargoGestionInvercion);
       var saldoFinal = saldoAnterior + aportacion + interes + cargoFijo + cargoAdministrativo +cargoGestionInvercion
 
-      //console.log("MES :::::::::::::: ", j);
-      //console.log("saldoAnterior", saldoAnterior);
-      //console.log("aportacion", aportacion);
-      //console.log("interes", interes);
-      //console.log("cargoFijo", cargoFijo);
-      //console.log("cargoAdministrativo", cargoAdministrativo);
-      //console.log("cargoGestionInvercion", cargoGestionInvercion);
-
-      //console.log("saldoFinal", saldoFinal);
-
       saldoAnterior = saldoFinal;
-      saldoFinalArr[j] = saldoFinal;
+      saldoFinalArr[j] = Number(saldoFinal.toFixed(0));
 
     }
     saldoInicial[i] = saldoFinalArr;
