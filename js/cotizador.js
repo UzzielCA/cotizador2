@@ -296,6 +296,7 @@ $(document).ready(function() {
                       var saldoDisponible;
                       if (año == value.Bono.length) {
                         saldoDisponible = saldoFondo;
+                        $("#saldoProyectado").html(saldoFondo);
                       } else {
                         saldoDisponible = value.Comprometido[i][12];
                       }
@@ -317,7 +318,7 @@ $(document).ready(function() {
                   var año = i + 1;
                   $("#beneficio_" + año).html(value[i]);
                 }
-              })
+              });
       ///////////////////////
     $("#divForm").hide();
     $("#divResumen").show();
@@ -433,6 +434,10 @@ function setSaldoFondoBono(saldoFinalBonoArr) {
 }
 
 function calculaSaldoFinalBono(bono) {
+  //console.log("bono", bono);
+  $("#porcentajeBonoAcreditado").html(bono + "%");
+  var bonoAcreditado = (deducible.aportacion * 12) * (bono/100);
+  $("#bonoAcreditado").html(bonoAcreditado.toFixed(0));
   var saldoFinalBonoArr = [];
 
   var porcentajeBono = bono/100;
