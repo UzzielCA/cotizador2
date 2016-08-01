@@ -1,7 +1,6 @@
 var firebase;
 var db;
 var deducible;
-var cargoFijoArr = [];
 
 $(document).ready(function() {
   $("#divResumen").hide();
@@ -231,7 +230,6 @@ $(document).ready(function() {
               getSaldoInicialDeducible();
               getSaldoComprometidoDeducible();
               getSaldoFinalBonoDEducible();
-              getBeneficioDedicible();
 
               for (var i = 1; i <= plazo; i++) {
                   var tr = document.createElement("tr");
@@ -292,9 +290,12 @@ $(document).ready(function() {
                   for (var i = 0; i < value.Bono.length; i++) {
                       var saldoFondo = value.Bono[i][12] + value.Comprometido[i][12] + value.Inicial[i][12];
                       var año = i + 1;
+                      console.log("año :: ", año);
+                      console.log("" + value.Bono[i][12] + "+" + value.Comprometido[i][12] + "+" + value.Inicial[i][12]);
+                      console.log("SaldoFondo", saldoFondo);
                       $("#saldoFondo_" + año).html(saldoFondo);
                       var saldoDisponible;
-                      if (año == value.Bono.length) {
+                      if (año >value.Bono.length) {
                         saldoDisponible = saldoFondo;
                       } else {
                         saldoDisponible = value.Comprometido[i][12];
@@ -495,6 +496,8 @@ function calculaSaldoComprometido(bono) {
     var saldoAnterior = 0;
     var porcentajeBono = bono/100;
     deducible.bono = porcentajeBono;
+    var inflacion = .04;
+    var udi = 5.08;
     var aportacion = deducible.aportacion;
     var bonoReal = 0;
     var interes = 0;
@@ -503,13 +506,11 @@ function calculaSaldoComprometido(bono) {
     var cargoGestionInvercion = 0
     var saldoFinal = 0;
 
-    cargoFijoArr.length = 0;
     for (var i = 0; i < deducible.plazo; i++) {
-        //console.log("Año :::::::::::::::::::::::::::::::::::::::::::", i);
-        var saldoFinalArr = [];
-        calculaCargoFijio(i);
+        console.log("Año :::::::::::::::::::::::::::::::::::::::::::", i);
+      var saldoFinalArr = [];
         for (var j = 1; j <= 12; j++) {
-            //console.log("MES :::::::::::::::::::::::::::::::::::::::", j);
+            console.log("MES :::::::::::::::::::::::::::::::::::::::", j);
           var isCalculo = 0;
             if (i == 1 && j > 6) {
               isCalculo = 1;
@@ -519,36 +520,30 @@ function calculaSaldoComprometido(bono) {
             if (isCalculo == 1) {
               bonoReal = 0;
               interes = (saldoAnterior + aportacion + bonoReal) * deducible.interesMensual;
-              var cargo = Number(cargoFijoArr[i]);
-
+              // TODO: checar el cargo fijo (tiene que ir aumentando cada año con la inflacion)
+              cargoFijo = (15 * udi * (1 + inflacion) * 1.16) * -1;
               cargoAdministrativo = 0;
-              cargoGestionInvercion = ((saldoAnterior + aportacion + bonoReal + interes + cargo) * .001 * 1.16) * -1;
-              saldoFinal = saldoAnterior + aportacion + bonoReal + interes + cargo + cargoAdministrativo + cargoGestionInvercion;
-              //console.log("saldoFinal", saldoFinal.toFixed(0));
+              cargoGestionInvercion = ((saldoAnterior + aportacion + bonoReal + interes + cargoFijo) * .001 * 1.16) * -1;
+              saldoFinal = saldoAnterior + aportacion + bonoReal + interes + cargoFijo + cargoAdministrativo + cargoGestionInvercion;
+
+              console.log("saldoAnterior", saldoAnterior);
+              console.log("aportacion", aportacion);
+              console.log("bonoReal", bonoReal);
+              console.log("interes", interes);
+              console.log("cargoFijo", cargoFijo);
+              console.log("cargoAdministrativo", cargoAdministrativo);
+              console.log("cargoGestionInvercion", cargoGestionInvercion);
+              console.log("saldoFinal", saldoFinal.toFixed(0));
 
               saldoAnterior = saldoFinal;
             }
-            saldoFinalArr[j] = Number(saldoFinal.toFixed(0));
+            saldoFinalArr[j] = saldoFinal;
         }
         saldoComprometido[i] = saldoFinalArr;
         var incremento = aportacion * .04;
         aportacion += incremento;
     }
     return saldoComprometido;
-}
-
-function calculaCargoFijio(año) {
-  var cargoFijo = 0;
-  var udi = 5.08;
-  var inflacion = .04;
-  if (año > 0) {
-    if (año == 1) {
-      cargoFijo = (15 * udi * (1 + inflacion) * 1.16) * -1;
-    } else {
-      cargoFijo = cargoFijoArr[año-1] * (1 + inflacion);
-    }
-  }
-  cargoFijoArr[año] = cargoFijo;
 }
 
 function getSaldoInicialDeducible() {
