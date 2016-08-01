@@ -277,7 +277,7 @@ $(document).ready(function() {
                               td.id = "saldoDisponibleNeto_" + i;
                               break;
                           case 7:
-                              td.textContent = "TO-DO";
+                              td.id = "beneficio_" + i;
                               break;
                       }
                       tr.appendChild(td);
@@ -309,6 +309,15 @@ $(document).ready(function() {
                       $("#saldoDisponibleNeto_" + año).html(saldoDisponibleNeto);
                   }
               });
+
+              db.ref("BeneficioDeducibilidad").on("value", function (snapshot) {
+                var value = snapshot.val();
+                console.log("value", value);
+                for (var i = 0; i < value.length; i++) {
+                  var año = i + 1;
+                  $("#beneficio_" + año).html(value[i]);
+                }
+              })
       ///////////////////////
     $("#divForm").hide();
     $("#divResumen").show();
@@ -353,8 +362,49 @@ function Deducible(edad, aportacion, periodicidad, plazo, inflacion){
 }
 
 function getBeneficioDedicible() {
-  var aportacionAnual = deducible.aportacion * deducible.periodicidad;
+  var aportacionAnual;
+  var intialTope151 = 98243.40;
+  var tope151;
+  var topeAnterior;
+  var base151;
+  var isr = $("#isr option:selected").val();
+  var beneficio;
+  var beneficioAnterior;
+  var beneficioArr =[];
+  for (var i = 1; i <= deducible.plazo; i++) {
+    if (deducible.inflacion == 0) {
+      aportacionAnual = deducible.aportacion * deducible.periodicidad;
+    } else {
+      if (i == 1) {
+        aportacionAnual = deducible.aportacion * deducible.periodicidad;
+      } else {
+        var incremento = aportacionAnual * .04;
+        aportacionAnual += incremento;
+      }
+    }
 
+    if (i == 1) {
+      tope151 = intialTope151;
+    } else {
+      tope151 = topeAnterior * (1 + .04);
+    }
+
+    topeAnterior = tope151;
+    if (aportacionAnual > tope151) {
+      base151 = tope151;
+    } else {
+      base151 = aportacionAnual;
+    }
+
+    if (i == 1) {
+       beneficio = base151 * isr;
+    } else {
+      beneficio = (base151 * isr) + (beneficioAnterior * (1 + .09));
+    }
+    beneficioAnterior = beneficio;
+    beneficioArr.push(beneficio.toFixed(0));
+  }
+  db.ref("BeneficioDeducibilidad").set(beneficioArr);
 }
 
 function getSaldoFinalBonoDEducible() {
@@ -390,32 +440,21 @@ function calculaSaldoFinalBono(bono) {
   var bonoCalculado = deducible.aportacion * porcentajeBono;
 
   for (var i = 0; i < deducible.plazo; i++) {
-      //console.log("AÑO ::::::::::::::::::::::::::::::::::::", i);
       var saldoFinalArr = [];
       for (var j = 1; j <= 12; j++) {
-          //console.log("MES :::::::::::::::::::::::::", j);
           if (i > 0) {
               bonoCalculado = 0;
           }
 
           var interes = (saldoAnterior + bonoCalculado) * deducible.interesMensual;
-          //interes = Number(interes.toFixed(0));
           var cargoAdministrativo = 0;
           if (j % 3 == 0) {
               cargoAdministrativo = ((saldoAnterior + bonoCalculado + interes) * .015) * -1;
-              //cargoAdministrativo = Number(cargoAdministrativo.toFixed(0));
           }
 
           var cargoGestionInvercion = ((saldoAnterior + bonoCalculado + interes) * .001) * -1;
-          //cargoGestionInvercion = Number(cargoGestionInvercion.toFixed(0));
 
           var saldoFinal = saldoAnterior + bonoCalculado + interes + cargoAdministrativo +cargoGestionInvercion;
-          //console.log("saldoAnterior", saldoAnterior);
-          //console.log("bonoCalculado", bonoCalculado);
-          //console.log("interes", interes);
-          //console.log("cargoAdministrativo", cargoAdministrativo);
-          //console.log("cargoGestionInvercion", cargoGestionInvercion);
-          //console.log("saldoFinal", saldoFinal.toFixed(0));
           saldoFinalArr[j] = Number(saldoFinal.toFixed(0))  ;
 
           saldoAnterior = saldoFinal;
