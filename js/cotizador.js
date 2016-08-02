@@ -2,6 +2,26 @@ var firebase;
 var db;
 var deducible;
 var cargoFijoArr = [];
+//////Formato de moneda
+var formatNumber = {
+  separador: ",", // separador para los miles
+  sepDecimal: '.', // separador para los decimales
+  formatear:function (num){
+    num +='';
+    var splitStr = num.split(',');
+    var splitLeft = splitStr[0];
+    var splitRight = splitStr.length > 1 ? this.sepDecimal + splitStr[1] : '';
+    var regx = /(\d+)(\d{3})/;
+    while (regx.test(splitLeft)) {
+      splitLeft = splitLeft.replace(regx, '$1' + this.separador + '$2');
+    }
+    return this.simbol + splitLeft  +splitRight;
+  },
+  new:function(num, simbol){
+    this.simbol = simbol ||'';
+    return this.formatear(num);
+  }
+}
 
 $(document).ready(function() {
   $("#divResumen").hide();
@@ -256,7 +276,7 @@ $(document).ready(function() {
                                   aportacionAnual += incremento;
                                 }
                               }
-                              td.textContent = aportacionAnual.toFixed(0);
+                              td.textContent = formatNumber.new(aportacionAnual.toFixed(0), "$");
                               break;
                           case 3:
                               var aportacionAcomulada;
@@ -265,7 +285,7 @@ $(document).ready(function() {
                               } else {
                                 aportacionAcomulada += aportacionAnual;
                               }
-                              td.textContent = aportacionAcomulada.toFixed(0);
+                              td.textContent = formatNumber.new(aportacionAcomulada.toFixed(0), "$");
                               break;
                           case 4:
                               td.id = "saldoFondo_" + i;
@@ -284,7 +304,7 @@ $(document).ready(function() {
                   }
                   $("#tableDetalle").append(tr);
               }
-              $("#aportacionAcomulada").html(aportacionAcomulada.toFixed(0));
+              $("#aportacionAcomulada").html(formatNumber.new(aportacionAcomulada.toFixed(0), "$"));
               $("#edadProyectada").html(edadFinal);
 
               db.ref("SaldoFondo").on("value", function (snapshot) {
@@ -292,22 +312,22 @@ $(document).ready(function() {
                   for (var i = 0; i < value.Bono.length; i++) {
                       var saldoFondo = value.Bono[i][12] + value.Comprometido[i][12] + value.Inicial[i][12];
                       var año = i + 1;
-                      $("#saldoFondo_" + año).html(saldoFondo);
+                      $("#saldoFondo_" + año).html(formatNumber.new(saldoFondo, "$"));
                       var saldoDisponible;
                       if (año == value.Bono.length) {
                         saldoDisponible = saldoFondo;
-                        $("#saldoProyectado").html(saldoFondo);
+                        $("#saldoProyectado").html(formatNumber.new(saldoFondo, "$"));
                       } else {
                         saldoDisponible = value.Comprometido[i][12];
                       }
-                      $("#saldoDisponible_" + año).html(saldoDisponible);
+                      $("#saldoDisponible_" + año).html(formatNumber.new(saldoDisponible, "$"));
 
                       var saldoDisponibleNeto;
                       // TODO: validar que la edad proyectada en el año calculando sea menor a 65
                       saldoDisponibleNeto = saldoDisponible * .8;
                       saldoDisponibleNeto = Number(saldoDisponibleNeto.toFixed(0));
 
-                      $("#saldoDisponibleNeto_" + año).html(saldoDisponibleNeto);
+                      $("#saldoDisponibleNeto_" + año).html(formatNumber.new(saldoDisponibleNeto, "$"));
                   }
               });
 
@@ -316,7 +336,7 @@ $(document).ready(function() {
                 console.log("value", value);
                 for (var i = 0; i < value.length; i++) {
                   var año = i + 1;
-                  $("#beneficio_" + año).html(value[i]);
+                  $("#beneficio_" + año).html(formatNumber.new(value[i], "$"));
                 }
               });
       ///////////////////////
@@ -437,7 +457,7 @@ function calculaSaldoFinalBono(bono) {
   //console.log("bono", bono);
   $("#porcentajeBonoAcreditado").html(bono + "%");
   var bonoAcreditado = (deducible.aportacion * 12) * (bono/100);
-  $("#bonoAcreditado").html(bonoAcreditado.toFixed(0));
+  $("#bonoAcreditado").html(formatNumber.new(bonoAcreditado.toFixed(0), "$"));
   var saldoFinalBonoArr = [];
 
   var porcentajeBono = bono/100;
