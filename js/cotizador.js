@@ -333,7 +333,6 @@ $(document).ready(function() {
 
               db.ref("BeneficioDeducibilidad").on("value", function (snapshot) {
                 var value = snapshot.val();
-                console.log("value", value);
                 for (var i = 0; i < value.length; i++) {
                   var año = i + 1;
                   $("#beneficio_" + año).html(formatNumber.new(value[i], "$"));
