@@ -363,14 +363,29 @@ $(document).ready(function() {
     console.log("user : ", user);
     if (user) {
       console.log("usuario autenticado");
-      db.ref("Usuarios").child(user.uid).set({
-        email: user.providerData[0].email,
-        name: user.providerData[0].displayName
+      user.providerData.forEach(function (profile) {
+        db.ref("Usuarios").child(user.uid).set({
+          email: profile.email,
+          name: profile.displayName,
+          provider: profile.providerId
+        });
+        user.updateEmail(profile.email).then(function() {
+          // Update successful.
+        }, function(error) {
+          // An error happened.
+          console.log("updateEmail error", error);
+        });
       });
 
       $("#divForm").show();
+      $("#logout").show();
+      $("#loginfacebook").hide();
+
+      $("#name").val(user.providerData[0].displayName);
     } else {
-      $("#divForm").hide();
+      $("#divForm").hide()
+      $("#logout").hide();;
+      $("#loginfacebook").show();
       console.log("no autenticado");
     }
   });
