@@ -2,6 +2,7 @@ var firebase;
 var db;
 var deducible;
 var cargoFijoArr = [];
+var userID;
 //////Formato de moneda
 var formatNumber = {
   separador: ",", // separador para los miles
@@ -307,7 +308,7 @@ $(document).ready(function() {
               $("#aportacionAcomulada").html(formatNumber.new(aportacionAcomulada.toFixed(0), "$"));
               $("#edadProyectada").html(edadFinal);
 
-              db.ref("SaldoFondo").on("value", function (snapshot) {
+              db.ref("Usuarios").child(userID).child("SaldoFondo").on("value", function (snapshot) {
                   var value = snapshot.val();
                   for (var i = 0; i < value.Bono.length; i++) {
                       var saldoFondo = value.Bono[i][12] + value.Comprometido[i][12] + value.Inicial[i][12];
@@ -331,7 +332,7 @@ $(document).ready(function() {
                   }
               });
 
-              db.ref("BeneficioDeducibilidad").on("value", function (snapshot) {
+              db.ref("Usuarios").child(userID).child("BeneficioDeducibilidad").on("value", function (snapshot) {
                 var value = snapshot.val();
                 for (var i = 0; i < value.length; i++) {
                   var año = i + 1;
@@ -362,6 +363,7 @@ $(document).ready(function() {
   firebase.auth().onAuthStateChanged(function(user) {
     console.log("user : ", user);
     if (user) {
+      userID = user.uid;
       console.log("usuario autenticado");
       user.providerData.forEach(function (profile) {
         db.ref("Usuarios").child(user.uid).set({
@@ -383,10 +385,11 @@ $(document).ready(function() {
 
       $("#name").val(user.providerData[0].displayName);
     } else {
-      $("#divForm").hide()
-      $("#logout").hide();;
-      $("#loginfacebook").show();
       console.log("no autenticado");
+
+      $("#divForm").hide();
+      $("#logout").hide();
+      $("#loginfacebook").show();
     }
   });
 
@@ -455,7 +458,7 @@ function getBeneficioDedicible() {
     beneficioAnterior = beneficio;
     beneficioArr.push(beneficio.toFixed(0));
   }
-  db.ref("BeneficioDeducibilidad").set(beneficioArr);
+  db.ref("Usuarios").child(userID).child("BeneficioDeducibilidad").set(beneficioArr);
 }
 
 function getSaldoFinalBonoDEducible() {
@@ -480,7 +483,8 @@ function getSaldoFinalBonoDEducible() {
 }
 
 function setSaldoFondoBono(saldoFinalBonoArr) {
-  db.ref("SaldoFondo/Bono").set(saldoFinalBonoArr);
+  //console.log("userID : " + userID);
+  db.ref("Usuarios").child(userID).child("SaldoFondo/Bono").set(saldoFinalBonoArr);
 }
 
 function calculaSaldoFinalBono(bono) {
@@ -541,7 +545,8 @@ function getSaldoComprometidoDeducible() {
 }
 
 function setSaldoFondoComprometido(saldoComprometido) {
-  db.ref("SaldoFondo/Comprometido").set(saldoComprometido);
+  //console.log("userID", userID);
+  db.ref("Usuarios").child(userID).child("SaldoFondo/Comprometido").set(saldoComprometido);
 }
 
 function calculaSaldoComprometido(bono) {
@@ -627,7 +632,8 @@ function getSaldoInicialDeducible() {
 };
 
 function setSaldoFondoInicial(saldoInicial) {
-  db.ref("SaldoFondo/Inicial").set(saldoInicial);
+  //console.log("userID", userID);
+  db.ref("Usuarios").child(userID).child("SaldoFondo/Inicial").set(saldoInicial);
 }
 
 function calculaSaldoFinal(interesAnual) {
@@ -702,6 +708,9 @@ $("#loginfacebook").click(function () {
 $("#logout").click(function () {
     firebase.auth().signOut().then(function() {
     // Sign-out successful.
+    $("#divForm").hide();
+    $("#logout").hide();
+    $("#loginfacebook").show();
   }, function(error) {
     // An error happened.
   });
