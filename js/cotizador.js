@@ -386,7 +386,7 @@ $(document).ready(function() {
       $("#name").val(user.providerData[0].displayName);
     } else {
       console.log("no autenticado");
-
+      $("#divResumen").hide();
       $("#divForm").hide();
       $("#logout").hide();
       $("#loginfacebook").show();
@@ -702,12 +702,30 @@ $("#loginfacebook").click(function () {
     console.log("errorMessage", errorMessage);
     console.log("email", email);
     console.log("credential", credential);
+
+    if (errorCode === "TRANSPORT_UNAVAILABLE") {
+        firebase.auth().authWithOAuthRedirect(provider).then(function (result) {
+
+        }).catch(function(error){
+            var errorCodeRedirect = error.code;
+            var errorMessageRedirect = error.message;
+            // The email of the user's account used.
+            var emailRedirect = error.email;
+            // The firebase.auth.AuthCredential type that was used.
+            var credentialRedirect = error.credential;
+            console.log("errorCodeRedirect", errorCodeRedirect);
+            console.log("errorMessageRedirect", errorMessageRedirect);
+            console.log("emailRedirect", emailRedirect);
+            console.log("credentialRedirect", credentialRedirect);
+        })
+    }
   });
 });
 
 $("#logout").click(function () {
     firebase.auth().signOut().then(function() {
     // Sign-out successful.
+    location.reload();
     $("#divForm").hide();
     $("#logout").hide();
     $("#loginfacebook").show();
